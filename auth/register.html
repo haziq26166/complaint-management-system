@@ -23,6 +23,7 @@ method="POST"
 onsubmit="return validateRegister()">
 
 <label>Full Name</label>
+
 <input
 type="text"
 name="full_name"
@@ -32,7 +33,9 @@ required>
 
 <small id="nameError"></small>
 
+
 <label>Email Address</label>
+
 <input
 type="email"
 name="email"
@@ -40,9 +43,13 @@ id="email"
 placeholder="example@gmail.com"
 required>
 
-<small id="emailError"></small>
+<small id="emailError">
+Email format: example@gmail.com
+</small>
+
 
 <label>Phone Number</label>
+
 <input
 type="text"
 name="phone_number"
@@ -52,7 +59,9 @@ required>
 
 <small id="phoneError"></small>
 
+
 <label>Apartment / Unit Number</label>
+
 <input
 type="text"
 name="apartment_no"
@@ -60,7 +69,9 @@ id="apartment_no"
 placeholder="A-12-03"
 required>
 
+
 <label>Password</label>
+
 <input
 type="password"
 name="password"
@@ -68,26 +79,67 @@ id="password"
 placeholder="Create Password"
 required>
 
+<div id="passwordRequirements">
+
+<small id="lengthCheck">
+❌ Minimum 8 characters
+</small>
+
+
+<small id="upperCheck">
+❌ At least 1 uppercase letter
+</small>
+
+
+<small id="lowerCheck">
+❌ At least 1 lowercase letter
+</small>
+
+
+<small id="numberCheck">
+❌ At least 1 number
+</small>
+
+
+<small id="specialCheck">
+❌ At least 1 special character
+</small>
+
+</div>
+
+<br>
+
 <small id="passwordError"></small>
 
+
 <label>Confirm Password</label>
+
 <input
 type="password"
+name="confirm_password"
 id="confirm_password"
 placeholder="Confirm Password"
 required>
 
 <small id="confirmPasswordError"></small>
 
+
 <button
 type="submit"
 name="register">
+
 Register
+
 </button>
 
 <p class="link-text">
+
 Already have an account?
-<a href="login.html">Login</a>
+
+<a href="login.html">
+Login
+</a>
+
 </p>
 
 </form>
