@@ -276,4 +276,32 @@ if (isset($_POST['edit_category_submit'])) {
     }
 }
 
+// ========================================================
+// DELETE CATEGORY PROCESSOR
+// ========================================================
+if (isset($_POST['delete_category'])) {
+    $category_id = intval($_POST['category_id']);
+
+    // Optional but highly recommended: Check if any complaints are currently using this category
+    $checkUsage = mysqli_query($conn, "SELECT complaintID FROM complaint WHERE categoryID = $category_id LIMIT 1");
+    if (mysqli_num_rows($checkUsage) > 0) {
+        // Updated redirect path: step out of utils/ and into component/admin/
+        echo "<script>alert('Cannot delete category. There are existing complaints tied to this category!'); window.location.href = '../component/admin/categories-list.php';</script>";
+        exit();
+    }
+
+    // Execute the deletion
+    $sql = "DELETE FROM category WHERE categoryID = $category_id";
+    
+    if (mysqli_query($conn, $sql)) {
+        // Updated redirect path: step out of utils/ and into component/admin/
+        echo "<script>alert('Category deleted successfully!'); window.location.href = '../component/admin/categories-list.php';</script>";
+        exit();
+    } else {
+        // Updated redirect path: step out of utils/ and into component/admin/
+        echo "<script>alert('Error deleting category.'); window.location.href = '../component/admin/categories-list.php';</script>";
+        exit();
+    }
+}
+
 ?>
