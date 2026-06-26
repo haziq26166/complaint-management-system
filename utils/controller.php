@@ -1,6 +1,9 @@
 <?php
 session_start();
+date_default_timezone_set('Asia/Kuala_Lumpur');
+
 include 'db.php';
+require_once 'mailer.php';
 
 // ============================
 // REGISTER
@@ -61,10 +64,10 @@ if(isset($_POST['login'])){
             $_SESSION['residentID'] = $row['residentID'];
             $_SESSION['full_name']  = $row['full_name'];
             $_SESSION['email']     = $row['email'];
+            $_SESSION['LAST_ACTIVITY'] = time();
 
             // Since login forms submit from /auth/, step out one level to find index.html
-            header("Location: ../index.html");
-            exit();
+            header("Location: ../component/resident/dashboard-resident.php");
         } else {
             echo "<script>alert('Incorrect Password'); window.location.href = '../auth/login.html';</script>";
             exit();
@@ -73,6 +76,149 @@ if(isset($_POST['login'])){
         echo "<script>alert('User Not Found'); window.location.href = '../auth/login.html';</script>";
         exit();
     }
+}
+
+// ============================
+// FORGOT PASSWORD
+// ============================
+if(isset($_POST['forgot_password'])){
+
+    $email = mysqli_real_escape_string($conn, trim($_POST['reset_email']));
+
+    if(empty($email)){
+        echo "<script>
+        alert('Email is required.');
+        window.location.href='../auth/forgot-password.php';
+        </script>";
+        exit();
+    }
+
+    $query = mysqli_query($conn,
+        "SELECT * FROM resident WHERE email='$email'");
+
+    // Sentiasa papar mesej yang sama (lebih selamat)
+    if(mysqli_num_rows($query) == 1){
+
+        $resident = mysqli_fetch_assoc($query);
+
+        // Generate token
+        $token = bin2hex(random_bytes(32));
+
+        // Sah selama 15 minit
+        $expiry = date(
+            "Y-m-d H:i:s",
+            strtotime("+15 minutes")
+        );
+
+        mysqli_query($conn,
+            "UPDATE resident
+             SET reset_token='$token',
+                 token_expiry='$expiry'
+             WHERE residentID='".$resident['residentID']."'"
+        );
+
+        $link =
+        "http://localhost/complaint-management-system/auth/reset-password.php?token=".$token;
+
+        $subject = "Reset Password";
+
+        $body = "
+        <h2>Residential Complaint Management System</h2>
+
+        <p>Hello ".$resident['full_name'].",</p>
+
+        <p>You requested to reset your password.</p>
+
+        <p>
+        Click the link below to continue:
+        </p>
+
+        <a href='$link'>
+        Reset Password
+        </a>
+
+        <br><br>
+
+        <small>
+        This link will expire in 15 minutes.
+        </small>";
+
+        sendMail(
+            $resident['email'],
+            $resident['full_name'],
+            $subject,
+            $body
+        );
+
+    }
+
+    echo "<script>
+    alert('If the email exists in our system, a password reset link has been sent.');
+    window.location.href='../auth/login.html';
+    </script>";
+
+    exit();
+}
+
+// ============================
+// RESET PASSWORD
+// ============================
+if(isset($_POST['reset_password'])){
+
+    $token = mysqli_real_escape_string($conn, $_POST['token']);
+    $new_password = $_POST['new_password'];
+    $confirm_password = $_POST['confirm_password'];
+
+    if($new_password !== $confirm_password){
+
+        echo "<script>
+        alert('Password does not match.');
+        window.history.back();
+        </script>";
+        exit();
+
+    }
+
+    if(strlen($new_password) < 8){
+
+        echo "<script>
+        alert('Password must be at least 8 characters.');
+        window.history.back();
+        </script>";
+        exit();
+
+    }
+
+    $hash = password_hash($new_password, PASSWORD_DEFAULT);
+
+    $update = mysqli_query($conn,
+        "UPDATE resident
+         SET
+            password='$hash',
+            reset_token=NULL,
+            token_expiry=NULL
+         WHERE
+            reset_token='$token'
+            AND token_expiry > NOW()"
+    );
+
+    if(mysqli_affected_rows($conn) > 0){
+
+        echo "<script>
+        alert('Password has been reset successfully.');
+        window.location.href='../auth/login.html';
+        </script>";
+
+    }else{
+
+        echo "<script>
+        alert('Reset link is invalid or has expired.');
+        window.location.href='../auth/forgot-password.php';
+        </script>";
+
+    }
+
+    exit();
 }
 
 // ========================================================

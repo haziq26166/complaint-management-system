@@ -2,6 +2,26 @@
 session_start();
 include '../../utils/db.php';
 
+// =========================
+// Session Timeout (2 Minutes)
+// =========================
+
+$timeout = 120;
+
+if(isset($_SESSION['LAST_ACTIVITY'])){
+
+    if(time() - $_SESSION['LAST_ACTIVITY'] > $timeout){
+
+        session_unset();
+        session_destroy();
+
+        header("Location: ../../auth/login.html?timeout=1");
+        exit();
+
+    }
+
+}
+
 if(!isset($_SESSION['residentID'])){
     header("Location: ../../auth/login.html");
     exit();
@@ -51,7 +71,7 @@ $user = mysqli_fetch_assoc($query);
 
 <body>
 
-<?php include 'navbar-resident.php'; ?>
+<?php include '../navbar-resident.php'; ?>
 
 <div class="container mt-4">
 
