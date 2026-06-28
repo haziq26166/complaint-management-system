@@ -55,65 +55,65 @@ if(!$data){
 </head>
 <body>
 
-<a href="complaint-history.php">
+    <a href="complaint-history.php">
     ← Back to My Complaints
-</a>
+    </a>
 
-<h2>Complaint Details</h2>
+        <h2>Complaint Details</h2>
 
-<table border="1" cellpadding="10">
+            <table border="1" cellpadding="10">
 
-<tr>
-    <th>Complaint ID</th>
-    <td><?= $data['complaintID']; ?></td>
-</tr>
+            <tr>
+                <th>Complaint ID</th>
+                <td><?= $data['complaintID']; ?></td>
+            </tr>
 
-<tr>
-    <th>Category</th>
-    <td><?= $data['category']; ?></td>
-</tr>
+            <tr>
+                <th>Category</th>
+                <td><?= $data['category']; ?></td>
+            </tr>
 
-<tr>
-    <th>Resident</th>
-    <td><?= $data['full_name']; ?></td>
-</tr>
+            <tr>
+                <th>Resident</th>
+                <td><?= $data['full_name']; ?></td>
+            </tr>
 
-<tr>
-    <th>Status</th>
-    <td><?= $data['status']; ?></td>
-</tr>
+            <tr>
+                <th>Status</th>
+                <td><?= $data['status']; ?></td>
+            </tr>
 
-<tr>
-    <th>Priority</th>
-    <td><?= $data['priority']; ?></td>
-</tr>
+            <tr>
+                <th>Priority</th>
+                <td><?= $data['priority']; ?></td>
+            </tr>
 
-<tr>
-    <th>Assigned To</th>
-    <td><?= $data['assigned_to']; ?></td>
-</tr>
+            <tr>
+                <th>Assigned To</th>
+                <td><?= $data['assigned_to']; ?></td>
+            </tr>
 
-<tr>
-    <th>Created Date</th>
-    <td><?= $data['created_date']; ?></td>
-</tr>
+            <tr>
+                <th>Created Date</th>
+                <td><?= $data['created_date']; ?></td>
+            </tr>
 
-<tr>
-    <th>Last Updated</th>
-    <td><?= $data['update_date']; ?></td>
-</tr>
+            <tr>
+                <th>Last Updated</th>
+                <td><?= $data['update_date']; ?></td>
+            </tr>
 
-<tr>
-    <th>Description</th>
-    <td><?= $data['description']; ?></td>
-</tr>
+            <tr>
+                <th>Description</th>
+                <td><?= $data['description']; ?></td>
+            </tr>
 
-<tr>
-    <th>Remarks / Notes</th>
-    <td><?= $data['notes']; ?></td>
-</tr>
+            <tr>
+                <th>Remarks / Notes</th>
+                <td><?= $data['notes']; ?></td>
+            </tr>
 
-</table>
+    </table>
 
 </body>
 </html>

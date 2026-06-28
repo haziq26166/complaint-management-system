@@ -53,7 +53,7 @@ $categories = mysqli_query($conn,"SELECT * FROM category ORDER BY name");
 
     <h2>Submit Complaint</h2>
 
-    <form method="POST">
+    <form method="post">
 
         <label>Complaint Type</label>
         <select name="category_id" required>
