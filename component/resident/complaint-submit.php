@@ -1,13 +1,33 @@
 <?php
 session_start();
-require_once '../../config/database.php';
+require_once '../../utils/db.php';
 
-if (!isset($_SESSION['resident_id'])) {
-    header("Location: ../auth/login.php");
+// =========================
+// Session Timeout (2 Minutes)
+// =========================
+
+$timeout = 120;
+
+if(isset($_SESSION['LAST_ACTIVITY'])){
+
+    if(time() - $_SESSION['LAST_ACTIVITY'] > $timeout){
+
+        session_unset();
+        session_destroy();
+
+        header("Location: ../../auth/login.html?timeout=1");
+        exit();
+
+    }
+
+}
+
+if (!isset($_SESSION['residentID'])) {
+    header("Location: ../auth/login.html");
     exit();
 }
 
-$resident_id = $_SESSION['resident_id'];
+$resident_id = $_SESSION['residentID'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -15,9 +35,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = mysqli_real_escape_string($conn, $_POST['description']);
 
     $query = "INSERT INTO complaint
-              (description, created_date, categoryID, residentID)
-              VALUES
-              ('$description', NOW(), '$category_id', '$resident_id')";
+(name, description, created_date, categoryID, residentID)
+
+VALUES
+(
+'Complaint',
+'$description',
+NOW(),
+'$category_id',
+'$residentID'
+)";
 
     if (mysqli_query($conn, $query)) {
 
@@ -25,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         mysqli_query($conn,"
             INSERT INTO status_complaint
-            (staffID, complaintID, status, priority, assigned_to, notes, update_date)
+            (staffID, complaintID, status_name, priority, assigned_to, noted, updated_date)
             VALUES
             (1,'$complaint_id','Pending','Medium','Unassigned',
             'Complaint submitted',NOW())

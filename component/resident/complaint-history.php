@@ -1,13 +1,33 @@
 <?php
 session_start();
-require_once '../../config/database.php';
+require_once '../../utils/db.php';
 
-if (!isset($_SESSION['resident_id'])) {
-    header("Location: ../auth/login.php");
+// =========================
+// Session Timeout (2 Minutes)
+// =========================
+
+$timeout = 120;
+
+if(isset($_SESSION['LAST_ACTIVITY'])){
+
+    if(time() - $_SESSION['LAST_ACTIVITY'] > $timeout){
+
+        session_unset();
+        session_destroy();
+
+        header("Location: ../../auth/login.html?timeout=1");
+        exit();
+
+    }
+
+}
+
+if (!isset($_SESSION['residentID'])) {
+    header("Location: ../auth/login.html");
     exit();
 }
 
-$resident_id = $_SESSION['resident_id'];
+$resident_id = $_SESSION['residentID'];
 
 $query = "
 SELECT
@@ -15,7 +35,7 @@ SELECT
     c.description,
     c.created_date,
     cat.name AS category,
-    sc.status
+    sc.status_name
 FROM complaint c
 LEFT JOIN category cat
 ON c.categoryID = cat.categoryID
