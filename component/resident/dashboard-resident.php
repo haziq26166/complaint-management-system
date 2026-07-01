@@ -1,132 +1,61 @@
 <?php
-session_start();
-include '../../utils/db.php';
-
-// =========================
-// Session Timeout (2 Minutes)
-// =========================
-
-$timeout = 120;
-
-if(isset($_SESSION['LAST_ACTIVITY'])){
-
-    if(time() - $_SESSION['LAST_ACTIVITY'] > $timeout){
-
-        session_unset();
-        session_destroy();
-
-        header("Location: ../../auth/login.html?timeout=1");
-        exit();
-
-    }
-
-}
-
-$_SESSION['LAST_ACTIVITY'] = time();
-
-if(!isset($_SESSION['residentID'])){
-    header("Location: ../../auth/login.html");
-    exit();
-}
+require_once '../../utils/session_check.php';
+requireLogin();
 
 $residentID = $_SESSION['residentID'];
+$stats = getComplaintStats($residentID);
 
-$total = mysqli_fetch_assoc(
-    mysqli_query($conn,
-    "SELECT COUNT(*) total
-     FROM complaint
-     WHERE residentID='$residentID'")
-);
-
-$pending = mysqli_fetch_assoc(
-    mysqli_query($conn,
-    "SELECT COUNT(*) total
-     FROM complaint c
-     JOIN status_complaint s
-     ON c.statusID=s.statusID
-     WHERE c.residentID='$residentID'
-     AND s.status_name='Pending'")
-);
-
-$progress = mysqli_fetch_assoc(
-    mysqli_query($conn,
-    "SELECT COUNT(*) total
-     FROM complaint c
-     JOIN status_complaint s
-     ON c.statusID=s.statusID
-     WHERE c.residentID='$residentID'
-     AND s.status_name='In Progress'")
-);
-
-$resolved = mysqli_fetch_assoc(
-    mysqli_query($conn,
-    "SELECT COUNT(*) total
-     FROM complaint c
-     JOIN status_complaint s
-     ON c.statusID=s.statusID
-     WHERE c.residentID='$residentID'
-     AND s.status_name='Resolved'")
-);
+// If stats is null, initialize with default values
+if (!$stats) {
+    $stats = [
+        'total' => 0,
+        'pending' => 0,
+        'in_progress' => 0,
+        'resolved' => 0
+    ];
+}
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Resident Dashboard</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resident Dashboard</title>
+    <link rel="stylesheet" href="../../styles/style.css">
 </head>
-
 <body>
 
-<?php include '../navbar-resident.php'; ?>
+<?php include_once '../navbar-resident.php'; ?>
 
-<div class="container mt-4">
+<div class="main-container">
+    <div class="container">
+        <h1 class="page-title">Welcome, <?php echo e($_SESSION['full_name']); ?>!</h1>
+        <p style="color:#718096; margin-bottom:30px;">Track your complaints and submit new ones from here.</p>
 
-<h2>Welcome,
-<?= $_SESSION['full_name']; ?>
-</h2>
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <span class="stat-label">Total Complaints</span>
+                <div class="stat-number"><?php echo $stats['total'] ?? 0; ?></div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #ed8936;">
+                <span class="stat-label">Pending</span>
+                <div class="stat-number" style="color:#ed8936;"><?php echo $stats['pending'] ?? 0; ?></div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #4299e1;">
+                <span class="stat-label">In Progress</span>
+                <div class="stat-number" style="color:#4299e1;"><?php echo $stats['in_progress'] ?? 0; ?></div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #48bb78;">
+                <span class="stat-label">Resolved</span>
+                <div class="stat-number" style="color:#48bb78;"><?php echo $stats['resolved'] ?? 0; ?></div>
+            </div>
+        </div>
 
-<div class="row mt-4">
-
-<div class="col-md-3">
-<div class="card text-center bg-primary text-white">
-<div class="card-body">
-<h5>Total Complaints</h5>
-<h2><?= $total['total']; ?></h2>
-</div>
-</div>
-</div>
-
-<div class="col-md-3">
-<div class="card text-center bg-warning">
-<div class="card-body">
-<h5>Pending</h5>
-<h2><?= $pending['total']; ?></h2>
-</div>
-</div>
-</div>
-
-<div class="col-md-3">
-<div class="card text-center bg-info text-white">
-<div class="card-body">
-<h5>In Progress</h5>
-<h2><?= $progress['total']; ?></h2>
-</div>
-</div>
-</div>
-
-<div class="col-md-3">
-<div class="card text-center bg-success text-white">
-<div class="card-body">
-<h5>Resolved</h5>
-<h2><?= $resolved['total']; ?></h2>
-</div>
-</div>
-</div>
-
-</div>
-
+        <div style="display:flex; gap:12px; margin-top:30px; flex-wrap:wrap;">
+            <a href="complaint-submit.php" class="btn-primary">Submit New Complaint</a>
+            <a href="complaint-history.php" class="btn-secondary">View All Complaints</a>
+        </div>
+    </div>
 </div>
 
 </body>

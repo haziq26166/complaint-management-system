@@ -1,139 +1,113 @@
 <?php
-session_start();
-require_once '../../utils/db.php';
+require_once '../../utils/session_check.php';
+requireLogin();
 
-// =========================
-// Session Timeout (2 Minutes)
-// =========================
-
-$timeout = 120;
-
-if(isset($_SESSION['LAST_ACTIVITY'])){
-
-    if(time() - $_SESSION['LAST_ACTIVITY'] > $timeout){
-
-        session_unset();
-        session_destroy();
-
-        header("Location: ../../auth/login.html?timeout=1");
-        exit();
-
-    }
-
-}
-
-if (!isset($_SESSION['residentID'])) {
-    header("Location: ../auth/login.php");
-    exit();
-}
-
-$resident_id = $_SESSION['resident_id'];
+$residentID = $_SESSION['residentID'];
 
 if (!isset($_GET['id'])) {
     die("Complaint not found.");
 }
 
-$complaint_id = $_GET['id'];
+$complaint_id = (int)$_GET['id'];
 
 $query = "
-SELECT
-    c.*,
-    cat.name AS category,
-    r.full_name,
-    sc.status,
-    sc.priority,
-    sc.assigned_to,
-    sc.notes,
-    sc.update_date
-FROM complaint c
-
-LEFT JOIN category cat
-ON c.categoryID = cat.categoryID
-
-LEFT JOIN resident r
-ON c.residentID = r.residentID
-
-LEFT JOIN status_complaint sc
-ON c.complaintID = sc.complaintID
-
-WHERE c.complaintID='$complaint_id'
-AND c.residentID='$resident_id'
+    SELECT
+        c.*,
+        cat.name AS category_name,
+        s.status_name,
+        s.priority,
+        s.assigned_to,
+        s.noted as notes,
+        s.updated_date
+    FROM complaint c
+    LEFT JOIN category cat ON c.categoryID = cat.categoryID
+    LEFT JOIN status_complaint s ON c.complaintID = s.complaintID
+    WHERE c.complaintID = $complaint_id AND c.residentID = $residentID
 ";
 
-$result = mysqli_query($conn,$query);
-$data = mysqli_fetch_assoc($result);
+$result = mysqli_query($conn, $query);
+$complaint = mysqli_fetch_assoc($result);
 
-if(!$data){
-    die("Complaint not found.");
+if (!$complaint) {
+    die("Complaint not found or you don't have permission to view it.");
 }
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complaint Details</title>
+    <link rel="stylesheet" href="../../styles/style.css">
 </head>
 <body>
 
-    <a href="complaint-history.php">
-    ← Back to My Complaints
-    </a>
+<?php include_once '../navbar-resident.php'; ?>
 
-        <h2>Complaint Details</h2>
+<div class="main-container">
+    <div class="container">
+        <a href="complaint-history.php" class="back-link">← Back to My Complaints</a>
+        
+        <div class="manage-header">
+            <h1 class="page-title" style="margin-bottom:0;"><?php echo e($complaint['name']); ?></h1>
+            <div class="header-badges">
+                <span class="badge <?php echo getStatusBadgeClass($complaint['status_name']); ?>">
+                    <?php echo e($complaint['status_name']); ?>
+                </span>
+                <span class="badge <?php echo getPriorityBadgeClass($complaint['priority']); ?>">
+                    <?php echo e($complaint['priority']); ?>
+                </span>
+            </div>
+        </div>
 
-            <table border="1" cellpadding="10">
+        <div class="details-card">
+            <div class="meta-grid">
+                <div class="meta-item">
+                    <label>Complaint ID</label>
+                    <p>C<?php echo str_pad($complaint['complaintID'], 3, '0', STR_PAD_LEFT); ?></p>
+                </div>
+                <div class="meta-item">
+                    <label>Category</label>
+                    <p><?php echo e($complaint['category_name']); ?></p>
+                </div>
+                <div class="meta-item">
+                    <label>Assigned To</label>
+                    <p><?php echo e($complaint['assigned_to'] ?? 'Unassigned'); ?></p>
+                </div>
+                <div class="meta-item">
+                    <label>Created</label>
+                    <p><?php echo date('M d, Y H:i', strtotime($complaint['created_date'])); ?></p>
+                </div>
+                <div class="meta-item">
+                    <label>Last Updated</label>
+                    <p><?php echo date('M d, Y H:i', strtotime($complaint['updated_date'])); ?></p>
+                </div>
+            </div>
 
-            <tr>
-                <th>Complaint ID</th>
-                <td><?= $data['complaintID']; ?></td>
-            </tr>
+            <div class="detail-section">
+                <h4>Description</h4>
+                <p><?php echo nl2br(e($complaint['description'])); ?></p>
+            </div>
 
-            <tr>
-                <th>Category</th>
-                <td><?= $data['category']; ?></td>
-            </tr>
-
-            <tr>
-                <th>Resident</th>
-                <td><?= $data['full_name']; ?></td>
-            </tr>
-
-            <tr>
-                <th>Status</th>
-                <td><?= $data['status']; ?></td>
-            </tr>
-
-            <tr>
-                <th>Priority</th>
-                <td><?= $data['priority']; ?></td>
-            </tr>
-
-            <tr>
-                <th>Assigned To</th>
-                <td><?= $data['assigned_to']; ?></td>
-            </tr>
-
-            <tr>
-                <th>Created Date</th>
-                <td><?= $data['created_date']; ?></td>
-            </tr>
-
-            <tr>
-                <th>Last Updated</th>
-                <td><?= $data['update_date']; ?></td>
-            </tr>
-
-            <tr>
-                <th>Description</th>
-                <td><?= $data['description']; ?></td>
-            </tr>
-
-            <tr>
-                <th>Remarks / Notes</th>
-                <td><?= $data['notes']; ?></td>
-            </tr>
-
-    </table>
+            <?php if (!empty($complaint['notes'])): ?>
+                <div class="detail-section">
+                    <h4>Staff Notes</h4>
+                    <div class="notes-container">
+                        <?php 
+                        $notes = explode("\n", $complaint['notes']);
+                        foreach ($notes as $note):
+                            if (trim($note) === '') continue;
+                        ?>
+                            <div class="note-box">
+                                <p class="note-text"><?php echo nl2br(e($note)); ?></p>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

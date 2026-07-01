@@ -2,57 +2,140 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>
-        Residential Complaint Management System
-    </title>
-
-    <link rel="stylesheet"
-          href="styles/style.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Residential Complaint Management System</title>
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 
 <body>
 
-    <div class="form-container">
+    <!-- ============================================================
+    HERO / LANDING SECTION
+    ============================================================ -->
+    <header class="hero-section">
+        <div class="hero-overlay">
+            <div class="container hero-content">
+                <span class="hero-badge">🏠 RCMS</span>
+                <h1 class="hero-title">
+                    Residential Complaint<br>
+                    <span class="highlight">Management System</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Manage Complaints Efficiently and Easily
+                </p>
+                <p class="hero-description">
+                    Submit and track your residential complaints online anytime and anywhere.
+                </p>
+                <div class="hero-buttons">
+                    <a href="auth/login.html" class="btn-primary btn-large">🔐 Login</a>
+                    <a href="auth/register.html" class="btn-secondary btn-large">📝 Register</a>
+                </div>
+            </div>
+        </div>
+    </header>
 
-        <h2>
-            Residential Complaint Management System
-        </h2>
+    <!-- ============================================================
+    WELCOME SECTION
+    ============================================================ -->
+    <section class="welcome-section">
+        <div class="container">
+            <div class="welcome-card">
+                <div class="welcome-icon">👋</div>
+                <h2 class="welcome-title">Welcome Residents</h2>
+                <p class="welcome-text">
+                    Submit and track your residential complaints online anytime and anywhere.
+                </p>
+                <a href="auth/register.html" class="btn-primary">Submit Complaint</a>
+            </div>
+        </div>
+    </section>
 
-        <p style="text-align:center; margin-bottom:20px;">
+    <!-- ============================================================
+    FEATURES SECTION
+    ============================================================ -->
+    <section class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">⭐ Features</span>
+                <h2 class="section-title">System Features</h2>
+                <p class="section-subtitle">
+                    Everything you need to manage residential complaints efficiently
+                </p>
+            </div>
 
-            Welcome to the Residential Complaint Management System.
+            <div class="features-grid">
+                <!-- Feature 1 -->
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3 class="feature-title">Online Complaint</h3>
+                    <p class="feature-desc">
+                        Residents can submit complaints through an easy online system.
+                    </p>
+                </div>
 
-            Residents can submit complaints, monitor complaint status,
-            and track complaint history efficiently.
+                <!-- Feature 2 -->
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Track Status</h3>
+                    <p class="feature-desc">
+                        Users can monitor complaint progress in real-time.
+                    </p>
+                </div>
 
-        </p>
+                <!-- Feature 3 -->
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h3 class="feature-title">Admin Management</h3>
+                    <p class="feature-desc">
+                        Administrators can manage complaints efficiently and systematically.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <a href="auth/login.html">
+    <!-- ============================================================
+    CTA / STATS SECTION
+    ============================================================ -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <div class="cta-text">
+                    <h2>Ready to get started?</h2>
+                    <p>Join thousands of residents managing complaints with ease.</p>
+                </div>
+                <div class="cta-buttons">
+                    <a href="auth/register.html" class="btn-primary btn-large">Get Started</a>
+                    <a href="auth/login.html" class="btn-secondary btn-large">I already have an account</a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-            <button>
-                Login
-            </button>
-
-        </a>
-
-        <br><br>
-
-        <a href="auth/register.html">
-
-            <button>
-                Register
-            </button>
-
-        </a>
-
-    </div>
+    <!-- ============================================================
+    FOOTER
+    ============================================================ -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="footer-logo">🏠 RCMS</span>
+                    <p class="footer-desc">
+                        Residential Complaint Management System — making complaint handling simple and transparent.
+                    </p>
+                </div>
+                <div class="footer-links">
+                    <a href="auth/login.html">Login</a>
+                    <a href="auth/register.html">Register</a>
+                    <a href="auth/forgot-password.php">Forgot Password</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Residential Complaint Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 
 </body>
 

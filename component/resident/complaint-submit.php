@@ -1,114 +1,58 @@
 <?php
-session_start();
-require_once '../../utils/db.php';
+require_once '../../utils/session_check.php';
+requireLogin();
 
-// =========================
-// Session Timeout (2 Minutes)
-// =========================
-
-$timeout = 120;
-
-if(isset($_SESSION['LAST_ACTIVITY'])){
-
-    if(time() - $_SESSION['LAST_ACTIVITY'] > $timeout){
-
-        session_unset();
-        session_destroy();
-
-        header("Location: ../../auth/login.html?timeout=1");
-        exit();
-
-    }
-
-}
-
-if (!isset($_SESSION['residentID'])) {
-    header("Location: ../auth/login.html");
-    exit();
-}
-
-$resident_id = $_SESSION['residentID'];
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-    $category_id = mysqli_real_escape_string($conn, $_POST['category_id']);
-    $description = mysqli_real_escape_string($conn, $_POST['description']);
-
-    $query = "INSERT INTO complaint
-(name, description, created_date, categoryID, residentID)
-
-VALUES
-(
-'Complaint',
-'$description',
-NOW(),
-'$category_id',
-'$residentID'
-)";
-
-    if (mysqli_query($conn, $query)) {
-
-        $complaint_id = mysqli_insert_id($conn);
-
-        mysqli_query($conn,"
-            INSERT INTO status_complaint
-            (staffID, complaintID, status_name, priority, assigned_to, noted, updated_date)
-            VALUES
-            (1,'$complaint_id','Pending','Medium','Unassigned',
-            'Complaint submitted',NOW())
-        ");
-
-        echo "<script>
-                alert('Complaint submitted successfully!');
-                window.location='complaint-history.php';
-              </script>";
-    }
-}
-
-$categories = mysqli_query($conn,"SELECT * FROM category ORDER BY name");
+$residentID = $_SESSION['residentID'];
+$categories = mysqli_query($conn, "SELECT * FROM category ORDER BY name");
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Submit Complaint</title>
-    <link rel="stylesheet" href="../../styles/resident.css">
+    <link rel="stylesheet" href="../../styles/style.css">
 </head>
 <body>
 
-<div class="container">
+<?php include_once '../navbar-resident.php'; ?>
 
-    <h2>Submit Complaint</h2>
+<div class="main-container">
+    <div class="container">
+        <a href="dashboard-resident.php" class="back-link">← Back to Dashboard</a>
+        <h1 class="page-title">Submit a New Complaint</h1>
 
-    <form method="post">
+        <div class="form-card" style="max-width:700px;">
+            <form action="../../utils/controller.php" method="POST">
+                <div class="form-group">
+                    <label class="form-label">Complaint Title</label>
+                    <input class="form-control" type="text" name="title" placeholder="Brief title for your complaint" required>
+                </div>
 
-        <label>Complaint Type</label>
-        <select name="category_id" required>
-            <option value="">-- Select Category --</option>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-control" name="category_id" required>
+                        <option value="">-- Select Category --</option>
+                        <?php while ($row = mysqli_fetch_assoc($categories)): ?>
+                            <option value="<?php echo $row['categoryID']; ?>">
+                                <?php echo e($row['name']); ?>
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
 
-            <?php while($row=mysqli_fetch_assoc($categories)){ ?>
-                <option value="<?= $row['categoryID']; ?>">
-                    <?= $row['name']; ?>
-                </option>
-            <?php } ?>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" name="description" rows="6" placeholder="Describe your complaint in detail..." required></textarea>
+                </div>
 
-        </select>
-
-        <label>Description</label>
-
-        <textarea
-            name="description"
-            rows="6"
-            required
-            placeholder="Describe your complaint..."
-        ></textarea>
-
-        <button type="submit">
-            Submit Complaint
-        </button>
-
-    </form>
-
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <a href="dashboard-resident.php" class="btn-secondary">Cancel</a>
+                    <button type="submit" name="submit_complaint" class="btn-primary">Submit Complaint</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 </body>

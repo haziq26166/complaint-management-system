@@ -1,5 +1,7 @@
 <?php
-require_once '../../utils/controller.php';
+require_once '../../utils/session_check.php';
+requireLogin();
+requireAdmin();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,44 +13,33 @@ require_once '../../utils/controller.php';
 </head>
 <body>
 
-    <div class="admin-main-layout">
-        
-        <?php include_once '../navbar-admin.php'; ?>
+<div class="admin-main-layout">
+    <?php include_once '../navbar-admin.php'; ?>
+    
+    <div class="admin-wrapper">
+        <a href="categories-list.php" class="back-link">← Back to Categories</a>
+        <h1 class="page-title">Add Category</h1>
 
-        <div class="admin-wrapper">
-            
-            <a href="categories-list.php" class="back-navigation-link">← Back to Categories</a>
-            <h1 class="page-title" style="margin-bottom: 25px;">Add Category</h1>
+        <div class="form-card" style="max-width:600px;">
+            <form action="../../utils/controller.php" method="POST">
+                <div class="form-group">
+                    <label class="form-label">Category Name</label>
+                    <input class="form-control" type="text" name="category_name" placeholder="e.g., HVAC, Plumbing" required>
+                </div>
 
-            <div class="manage-card" style="max-width: 650px; padding: 30px;">
-                <form method="POST" action="categories-add.php">
-                    
-                    <div class="form-field-group">
-                        <label>Category Name</label>
-                        <input 
-                            type="text" 
-                            name="category_name" 
-                            placeholder="e.g., HVAC, Carpentry" 
-                            required>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" name="description" rows="4" placeholder="Describe what issues fall under this category..."></textarea>
+                </div>
 
-                    <div class="form-field-group">
-                        <label>Description</label>
-                        <textarea 
-                            name="description" 
-                            placeholder="Provide a brief description of what issues fall under this category..."></textarea>
-                    </div>
-
-                    <div class="form-action-row">
-                        <a href="categories-list.php" class="cancel-btn">Cancel</a>
-                        <button type="submit" name="add_category_submit" class="submit-blue-btn">Add Category</button>
-                    </div>
-
-                </form>
-            </div>
-
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <a href="categories-list.php" class="btn-secondary">Cancel</a>
+                    <button type="submit" name="add_category_submit" class="btn-primary">Add Category</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
 </body>
 </html>

@@ -1,52 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resident Registration</title>
+    <title>Register - Complaint Management System</title>
     <link rel="stylesheet" href="../styles/style.css">
 </head>
-
 <body class="auth-body">
-
     <div class="form-container">
         <h2>Resident Registration</h2>
+        <p style="text-align:center; color:#718096; margin-bottom:20px; font-size:14px;">
+            Create your account to submit and track complaints.
+        </p>
 
         <form action="../utils/controller.php" method="POST" onsubmit="return validateRegister()">
-            <label>Full Name</label>
-            <input type="text" name="full_name" id="full_name" placeholder="Enter your full name" required>
-            <small id="nameError"></small>
-
-            <label>Email Address</label>
-            <input type="email" name="email" id="email" placeholder="example@gmail.com" required>
-            <small id="emailError">Email format: example@gmail.com</small>
-
-            <label>Phone Number</label>
-            <input type="text" name="phone_number" id="phone_number" placeholder="0123456789" required>
-            <small id="phoneError"></small>
-
-            <label>Apartment / Unit Number</label>
-            <input type="text" name="apartment_no" id="apartment_no" placeholder="A-12-03" required>
-
-            <label>Password</label>
-            <input type="password" name="password" id="password" placeholder="Create Password" required>
-
-            <div id="passwordRequirements">
-                <small id="lengthCheck">❌ Minimum 8 characters</small>
-                <small id="upperCheck">❌ At least 1 uppercase letter</small>
-                <small id="lowerCheck">❌ At least 1 lowercase letter</small>
-                <small id="numberCheck">❌ At least 1 number</small>
-                <small id="specialCheck">❌ At least 1 special character</small>
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input class="form-control" type="text" name="full_name" id="full_name" placeholder="Enter your full name" required>
+                <small id="nameError" style="display:block; margin-top:5px;"></small>
             </div>
-            <br>
-            <small id="passwordError"></small>
 
-            <label>Confirm Password</label>
-            <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
-            <small id="confirmPasswordError"></small>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input class="form-control" type="email" name="email" id="email" placeholder="example@gmail.com" required>
+                <small id="emailError" style="display:block; margin-top:5px;">Email format: example@gmail.com</small>
+            </div>
 
-            <button type="submit" name="register">Register</button>
+            <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input class="form-control" type="text" name="phone_number" id="phone_number" placeholder="0123456789" required>
+                <small id="phoneError" style="display:block; margin-top:5px;"></small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Apartment / Unit Number</label>
+                <input class="form-control" type="text" name="apartment_no" id="apartment_no" placeholder="A-12-03" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input class="form-control" type="password" name="password" id="password" placeholder="Create Password" required>
+                <div id="passwordRequirements">
+                    <small id="lengthCheck">❌ Minimum 8 characters</small>
+                    <small id="upperCheck">❌ At least 1 uppercase letter</small>
+                    <small id="lowerCheck">❌ At least 1 lowercase letter</small>
+                    <small id="numberCheck">❌ At least 1 number</small>
+                    <small id="specialCheck">❌ At least 1 special character</small>
+                </div>
+                <small id="passwordError"></small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Confirm Password</label>
+                <input class="form-control" type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
+                <small id="confirmPasswordError" style="display:block; margin-top:5px;"></small>
+            </div>
+
+            <button type="submit" name="register" class="btn-primary" style="width:100%;">Register</button>
 
             <p class="link-text">
                 Already have an account? <a href="login.html">Login</a>

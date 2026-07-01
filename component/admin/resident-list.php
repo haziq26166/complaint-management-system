@@ -1,62 +1,24 @@
 <?php
-session_start();
-require_once '../../utils/db.php';
-
-function e($value) {
-    return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
-}
-
-$message = '';
-
-if (isset($_POST['delete_resident'])) {
-    $resident_id = intval($_POST['resident_id']);
-
-    $check = mysqli_query($conn, "SELECT COUNT(*) AS total FROM complaint WHERE residentID = $resident_id");
-    $check_row = mysqli_fetch_assoc($check);
-
-    if (($check_row['total'] ?? 0) > 0) {
-        $message = "This resident cannot be deleted because they already have complaint records.";
-    } else {
-        $delete = mysqli_query($conn, "DELETE FROM resident WHERE residentID = $resident_id");
-        $message = $delete ? "Resident deleted successfully." : "Unable to delete resident.";
-    }
-}
+require_once '../../utils/session_check.php';
+requireLogin();
+requireAdmin();
 
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-$where_sql = '';
+$where = '';
 
 if ($search !== '') {
-    $safe_search = mysqli_real_escape_string($conn, $search);
-    $where_sql = "
-        WHERE r.full_name LIKE '%$safe_search%'
-        OR r.email LIKE '%$safe_search%'
-        OR r.phone_number LIKE '%$safe_search%'
-        OR r.apartment_no LIKE '%$safe_search%'
-    ";
+    $safe = mysqli_real_escape_string($conn, $search);
+    $where = "WHERE r.full_name LIKE '%$safe%' OR r.email LIKE '%$safe%' OR r.phone_number LIKE '%$safe%' OR r.apartment_no LIKE '%$safe%'";
 }
 
-$residents = [];
-$sql = "
-    SELECT
-        r.residentID,
-        r.full_name,
-        r.email,
-        r.phone_number,
-        r.apartment_no,
-        COUNT(c.complaintID) AS total_complaints
+$residents = mysqli_query($conn, "
+    SELECT r.*, COUNT(c.complaintID) as complaint_count
     FROM resident r
     LEFT JOIN complaint c ON r.residentID = c.residentID
-    $where_sql
-    GROUP BY r.residentID, r.full_name, r.email, r.phone_number, r.apartment_no
+    $where
+    GROUP BY r.residentID
     ORDER BY r.residentID DESC
-";
-
-$result = mysqli_query($conn, $sql);
-if ($result) {
-    while ($row = mysqli_fetch_assoc($result)) {
-        $residents[] = $row;
-    }
-}
+");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -65,115 +27,65 @@ if ($result) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resident List</title>
     <link rel="stylesheet" href="../../styles/style.css">
-    <style>
-        .search-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        .search-row input {
-            flex: 1;
-            min-width: 260px;
-            padding: 12px 16px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .search-row input:focus {
-            border-color: #1a73e8;
-        }
-
-        .message-box {
-            background: #e6fffa;
-            color: #234e52;
-            border: 1px solid #b2f5ea;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .resident-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-    </style>
 </head>
 <body>
 
 <div class="admin-main-layout">
-
     <?php include_once '../navbar-admin.php'; ?>
-
+    
     <div class="admin-wrapper">
         <div class="page-header-row">
             <h1 class="page-title" style="margin-bottom:0;">Resident List</h1>
-            <a href="dashboard-admin.php" class="add-btn">Back to Dashboard</a>
         </div>
 
-        <?php if ($message !== ''): ?>
-            <div class="message-box"><?php echo e($message); ?></div>
-        <?php endif; ?>
-
-        <form method="GET" action="resident-list.php" class="search-row">
-            <input
-                type="text"
-                name="search"
-                value="<?php echo e($search); ?>"
-                placeholder="Search by name, email, phone number, or apartment no...">
-            <button type="submit" class="add-btn">Search</button>
-            <a href="resident-list.php" class="cancel-btn">Reset</a>
+        <form method="GET" action="" class="search-form">
+            <div style="display:flex; gap:12px; margin-bottom:20px;">
+                <input class="form-control" type="text" name="search" value="<?php echo e($search); ?>" placeholder="Search residents..." style="max-width:400px;">
+                <button type="submit" class="btn-primary">Search</button>
+                <a href="resident-list.php" class="btn-secondary">Reset</a>
+            </div>
         </form>
 
         <div class="table-container">
-            <table class="complaint-table">
+            <table class="data-table">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Full Name</th>
                         <th>Email</th>
-                        <th>Phone Number</th>
-                        <th>Apartment No</th>
-                        <th>Total Complaints</th>
-                        <th style="text-align:center;">Actions</th>
+                        <th>Phone</th>
+                        <th>Apartment</th>
+                        <th>Status</th>
+                        <th>Complaints</th>
+                        <th style="text-align:center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($residents)): ?>
+                    <?php if (mysqli_num_rows($residents) === 0): ?>
                         <tr>
-                            <td colspan="7" style="text-align:center; color:#a0aec0; padding:30px;">
-                                No resident records found.
+                            <td colspan="8" style="text-align:center; color:#a0aec0; padding:40px;">
+                                No residents found.
                             </td>
                         </tr>
                     <?php else: ?>
-                        <?php foreach ($residents as $row): ?>
+                        <?php while ($row = mysqli_fetch_assoc($residents)): ?>
                             <tr>
                                 <td><strong>R<?php echo str_pad($row['residentID'], 3, '0', STR_PAD_LEFT); ?></strong></td>
                                 <td><strong><?php echo e($row['full_name']); ?></strong></td>
                                 <td><?php echo e($row['email']); ?></td>
                                 <td><?php echo e($row['phone_number']); ?></td>
                                 <td><?php echo e($row['apartment_no']); ?></td>
-                                <td><?php echo (int)$row['total_complaints']; ?></td>
+                                <td>
+                                    <span class="badge <?php echo $row['resident_status'] === 'active' ? 'badge-resolved' : 'badge-pending'; ?>">
+                                        <?php echo ucfirst($row['resident_status']); ?>
+                                    </span>
+                                </td>
+                                <td><?php echo $row['complaint_count']; ?></td>
                                 <td style="text-align:center;">
-                                    <div class="resident-actions" style="justify-content:center;">
-                                        <a href="resident-edit.php?id=<?php echo $row['residentID']; ?>" class="action-link" title="Edit Resident">
-                                            <button class="action-btn">📝</button>
-                                        </a>
-
-                                        <form method="POST" action="resident-list.php" onsubmit="return confirm('Are you sure you want to delete this resident?');">
-                                            <input type="hidden" name="resident_id" value="<?php echo $row['residentID']; ?>">
-                                            <button type="submit" name="delete_resident" class="action-btn" title="Delete Resident">🗑️</button>
-                                        </form>
-                                    </div>
+                                    <a href="resident-edit.php?id=<?php echo $row['residentID']; ?>" class="btn-sm">Edit</a>
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php endwhile; ?>
                     <?php endif; ?>
                 </tbody>
             </table>

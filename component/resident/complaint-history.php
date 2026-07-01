@@ -1,99 +1,100 @@
 <?php
-session_start();
-require_once '../../utils/db.php';
+require_once '../../utils/session_check.php';
+requireLogin();
 
-// =========================
-// Session Timeout (2 Minutes)
-// =========================
-
-$timeout = 120;
-
-if(isset($_SESSION['LAST_ACTIVITY'])){
-
-    if(time() - $_SESSION['LAST_ACTIVITY'] > $timeout){
-
-        session_unset();
-        session_destroy();
-
-        header("Location: ../../auth/login.html?timeout=1");
-        exit();
-
-    }
-
-}
-
-if (!isset($_SESSION['residentID'])) {
-    header("Location: ../auth/login.html");
-    exit();
-}
-
-$resident_id = $_SESSION['residentID'];
+$residentID = $_SESSION['residentID'];
 
 $query = "
-SELECT
-    c.complaintID,
-    c.description,
-    c.created_date,
-    cat.name AS category,
-    sc.status_name
-FROM complaint c
-LEFT JOIN category cat
-ON c.categoryID = cat.categoryID
-
-LEFT JOIN status_complaint sc
-ON c.complaintID = sc.complaintID
-
-WHERE c.residentID = '$resident_id'
-ORDER BY c.created_date DESC
+    SELECT
+        c.complaintID,
+        c.name as complaint_title,
+        c.description,
+        c.created_date,
+        cat.name AS category,
+        s.status_name,
+        s.priority,
+        s.assigned_to,
+        s.updated_date
+    FROM complaint c
+    LEFT JOIN category cat ON c.categoryID = cat.categoryID
+    LEFT JOIN status_complaint s ON c.complaintID = s.complaintID
+    WHERE c.residentID = $residentID
+    ORDER BY c.created_date DESC
 ";
 
-$result = mysqli_query($conn,$query);
+$result = mysqli_query($conn, $query);
+$complaints = [];
+while ($row = mysqli_fetch_assoc($result)) {
+    $complaints[] = $row;
+}
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complaint History</title>
+    <link rel="stylesheet" href="../../styles/style.css">
 </head>
 <body>
 
-<h2>My Complaints</h2>
+<?php include_once '../navbar-resident.php'; ?>
 
-<table border="1" cellpadding="10">
+<div class="main-container">
+    <div class="container">
+        <a href="dashboard-resident.php" class="back-link">← Back to Dashboard</a>
+        <h1 class="page-title">My Complaint History</h1>
 
-    <tr>
-        <th>ID</th>
-        <th>Category</th>
-        <th>Status</th>
-        <th>Date</th>
-        <th>Action</th>
-    </tr>
-
-    <?php while($row=mysqli_fetch_assoc($result)){ ?>
-
-    <tr>
-
-        <td><?= $row['complaintID']; ?></td>
-
-        <td><?= $row['category']; ?></td>
-
-        <td><?= $row['status']; ?></td>
-
-        <td><?= date('d M Y',strtotime($row['created_date'])); ?></td>
-
-        <td>
-
-            <a href="complaint-details.php?id=<?= $row['complaintID']; ?>">
-                View
-            </a>
-
-        </td>
-
-    </tr>
-
-    <?php } ?>
-
-</table>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Assigned To</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($complaints)): ?>
+                        <tr>
+                            <td colspan="8" style="text-align:center; color:#a0aec0; padding:40px;">
+                                You haven't submitted any complaints yet.
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($complaints as $row): ?>
+                            <tr>
+                                <td><strong>C<?php echo str_pad($row['complaintID'], 3, '0', STR_PAD_LEFT); ?></strong></td>
+                                <td><?php echo e($row['complaint_title']); ?></td>
+                                <td><?php echo e($row['category']); ?></td>
+                                <td>
+                                    <span class="badge <?php echo getStatusBadgeClass($row['status_name']); ?>">
+                                        <?php echo e($row['status_name'] ?? 'Pending'); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge <?php echo getPriorityBadgeClass($row['priority']); ?>">
+                                        <?php echo e($row['priority'] ?? 'Medium'); ?>
+                                    </span>
+                                </td>
+                                <td><?php echo e($row['assigned_to'] ?? 'Unassigned'); ?></td>
+                                <td><?php echo date('M d, Y', strtotime($row['created_date'])); ?></td>
+                                <td>
+                                    <a href="complaint-details.php?id=<?php echo $row['complaintID']; ?>" class="btn-sm">View</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

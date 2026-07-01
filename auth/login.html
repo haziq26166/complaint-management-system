@@ -1,76 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - Complaint Management System</title>
     <link rel="stylesheet" href="../styles/style.css">
 </head>
-
-<script src="../utils/script.js"></script>
-
-<script>
-
-const params = new URLSearchParams(window.location.search);
-
-if(params.get("timeout") === "1"){
-
-    alert("Your session has expired. Please login again.");
-
-}
-
-</script>
-
 <body class="auth-body">
-
     <div class="form-container">
-        <h2>Resident Login</h2>
+        <h2>Login</h2>
+        <p style="text-align:center; color:#718096; margin-bottom:20px; font-size:14px;">
+            Login to submit complaints and track their status.
+        </p>
 
-        <form action="../utils/controller.php" method="POST">
+        <form action="../utils/controller.php" method="POST" onsubmit="return validateLogin()">
+            <div class="form-group">
+                <label class="form-label" for="loginEmail">Email Address</label>
+                <input class="form-control" type="email" name="email" id="loginEmail" placeholder="Enter Email" required>
+                <small id="loginEmailError" style="display:block; margin-top:5px; color:#718096;">Enter your registered email address</small>
+            </div>
 
-            <label>Email Address</label>
-            <input type="email"
-                   name="email"
-                   placeholder="Enter Email"
-                   required>
+            <div class="form-group">
+                <label class="form-label" for="loginPassword">Password</label>
+                <div class="password-container">
+                    <input class="form-control" type="password" name="password" id="loginPassword" placeholder="Enter Password" required>
+                    <span class="toggle-password" onclick="togglePassword('loginPassword')">👁️</span>
+                </div>
+            </div>
 
-            <label>Password</label>
+            <button type="submit" name="login" class="btn-primary" style="width:100%;">Login</button>
 
-<div class="password-container">
-
-    <input
-        type="password"
-        name="password"
-        id="loginPassword"
-        placeholder="Enter Password"
-        required>
-
-    <span
-    class="toggle-password"
-    onclick="togglePassword('loginPassword')">
-    👁️
-</span>
-
-</div>
-
-            <button type="submit" name="login">
-                Login
-            </button>
-
-            <!-- NEW -->
             <p class="forgot-link">
                 <a href="forgot-password.php">Forgot Password?</a>
             </p>
 
             <p class="link-text">
-                Don't have an account?
-                <a href="register.html">Register</a>
+                Don't have an account? <a href="register.html">Register</a>
             </p>
-
         </form>
-
     </div>
 
+    <script src="../utils/script.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("timeout") === "1") {
+            alert("Your session has expired. Please login again.");
+        }
+        if (params.get("inactive") === "1") {
+            alert("Your account has been deactivated. Please contact the administrator.");
+        }
+    </script>
 </body>
 </html>

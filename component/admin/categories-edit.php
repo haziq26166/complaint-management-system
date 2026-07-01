@@ -1,54 +1,61 @@
 <?php
-require_once '../../utils/controller.php';
+require_once '../../utils/session_check.php';
+requireLogin();
+requireAdmin();
+
+if (!isset($_GET['id'])) {
+    header("Location: categories-list.php");
+    exit();
+}
+
+$category_id = (int)$_GET['id'];
+$query = mysqli_query($conn, "SELECT * FROM category WHERE categoryID = $category_id");
+$category = mysqli_fetch_assoc($query);
+
+if (!$category) {
+    header("Location: categories-list.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Category - <?php echo htmlspecialchars($category_data['name']); ?></title>
+    <title>Edit Category</title>
     <link rel="stylesheet" href="../../styles/style.css">
 </head>
 <body>
 
-    <div class="admin-main-layout">
-        
-        <?php include_once '../navbar-admin.php'; ?>
+<div class="admin-main-layout">
+    <?php include_once '../navbar-admin.php'; ?>
+    
+    <div class="admin-wrapper">
+        <a href="categories-list.php" class="back-link">← Back to Categories</a>
+        <h1 class="page-title">Edit Category</h1>
 
-        <div class="admin-wrapper">
-            
-            <a href="categories-list.php" class="back-navigation-link">← Back to Categories</a>
-            <h1 class="page-title" style="margin-bottom: 25px;">Edit Category</h1>
+        <div class="form-card" style="max-width:600px;">
+            <form action="../../utils/controller.php" method="POST">
+                <input type="hidden" name="category_id" value="<?php echo $category['categoryID']; ?>">
 
-            <div class="manage-card" style="max-width: 650px; padding: 30px;">
-                <form method="POST" action="categories-edit.php?id=<?php echo $category_data['categoryID']; ?>">
-                    
-                    <input type="hidden" name="category_id" value="<?php echo $category_data['categoryID']; ?>">
-                    
-                    <div class="form-field-group">
-                        <label>Category Name</label>
-                        <input 
-                            type="text" 
-                            name="category_name" 
-                            value="<?php echo htmlspecialchars($category_data['name']); ?>" 
-                            required>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Category Name</label>
+                    <input class="form-control" type="text" name="category_name" value="<?php echo e($category['name']); ?>" required>
+                </div>
 
-                    <div class="form-field-group">
-                        <label>Description</label>
-                        <textarea name="description"><?php echo htmlspecialchars($category_data['description']); ?></textarea>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" name="description" rows="4"><?php echo e($category['description']); ?></textarea>
+                </div>
 
-                    <div class="form-action-row">
-                        <a href="categories-list.php" class="cancel-btn">Cancel</a>
-                        <button type="submit" name="edit_category_submit" class="submit-blue-btn">Save Changes</button>
-                    </div>
-
-                </form>
-            </div>
-
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <a href="categories-list.php" class="btn-secondary">Cancel</a>
+                    <button type="submit" name="edit_category_submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
 </body>
 </html>

@@ -1,5 +1,9 @@
 <?php
-require_once '../../utils/controller.php';
+require_once '../../utils/session_check.php';
+requireLogin();
+requireAdmin();
+
+$categories = mysqli_query($conn, "SELECT * FROM category ORDER BY name");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,57 +15,53 @@ require_once '../../utils/controller.php';
 </head>
 <body>
 
-    <div class="admin-main-layout">
-        
-        <?php include_once '../navbar-admin.php'; ?>
+<div class="admin-main-layout">
+    <?php include_once '../navbar-admin.php'; ?>
+    
+    <div class="admin-wrapper">
+        <div class="page-header-row">
+            <h1 class="page-title" style="margin-bottom:0;">Manage Categories</h1>
+            <a href="categories-add.php" class="btn-primary">+ Add Category</a>
+        </div>
 
-        <div class="admin-wrapper">
-            
-            <div class="page-header-row">
-                <h1 class="page-title" style="margin-bottom: 0;">Manage Categories</h1>
-                <a href="categories-add.php" class="add-btn">+ Add Category</a>
-            </div>
-
-            <div class="table-container">
-                <table class="complaint-table">
-                    <thead>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width:25%;">Name</th>
+                        <th style="width:55%;">Description</th>
+                        <th style="width:20%; text-align:center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (mysqli_num_rows($categories) === 0): ?>
                         <tr>
-                            <th style="width: 25%;">Name</th>
-                            <th style="width: 60%;">Description</th>
-                            <th style="width: 15%; text-align: center;">Actions</th>
+                            <td colspan="3" style="text-align:center; color:#a0aec0; padding:40px;">
+                                No categories configured.
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($categories_list)): ?>
+                    <?php else: ?>
+                        <?php while ($row = mysqli_fetch_assoc($categories)): ?>
                             <tr>
-                                <td colspan="3" style="text-align: center; color: #a0aec0; padding: 30px;">No categories configured.</td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach ($categories_list as $cat): ?>
-                                <tr>
-                                    <td><strong><?php echo htmlspecialchars($cat['name']); ?></strong></td>
-                                    <td style="white-space: normal; color: #718096;">
-                                        <?php echo htmlspecialchars($cat['description'] ?: 'No description provided.'); ?>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <a href="categories-edit.php?id=<?php echo $cat['categoryID']; ?>" class="action-link" title="Edit Category">
-                                            <button class="action-btn">📝</button>
-                                        </a>
-                                        
-                                        <form method="POST" action="../../utils/controller.php" style="display: inline-block;" onsubmit="return confirm('Are you sure you want to delete this category?');">
-                                            <input type="hidden" name="category_id" value="<?php echo $cat['categoryID']; ?>">
-                                            <button type="submit" name="delete_category" class="action-btn" title="Delete Category">🗑️</button>
+                                <td><strong><?php echo e($row['name']); ?></strong></td>
+                                <td style="white-space:normal;"><?php echo e($row['description'] ?: 'No description provided.'); ?></td>
+                                <td style="text-align:center;">
+                                    <div style="display:flex; gap:8px; justify-content:center;">
+                                        <a href="categories-edit.php?id=<?php echo $row['categoryID']; ?>" class="btn-sm">Edit</a>
+                                        <form method="POST" action="../../utils/controller.php" onsubmit="return confirm('Delete this category?');">
+                                            <input type="hidden" name="category_id" value="<?php echo $row['categoryID']; ?>">
+                                            <button type="submit" name="delete_category" class="btn-sm btn-danger">Delete</button>
                                         </form>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 
 </body>
 </html>
