@@ -129,7 +129,7 @@ if (isset($_POST['forgot_password'])) {
         }
         
         // Send email with reset link
-        $resetLink = "http://localhost/rcms/auth/reset-password.php?token=$token";
+        $resetLink = "http://localhost/complaint-management-system/auth/reset-password.php?token=$token";
         $body = "
             <h2>Password Reset Request</h2>
             <p>Click the link below to reset your password:</p>
