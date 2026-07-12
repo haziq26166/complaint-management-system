@@ -13,7 +13,6 @@ function sendMail($recipientEmail, $recipientName, $subject, $body) {
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
         
-        // CHANGE THESE TO YOUR EMAIL AND APP PASSWORD
         $mail->Username = 'nurazleenahsidek@gmail.com';
         $mail->Password = 'iwnn hgmj ucvn otxl'; // App password
         

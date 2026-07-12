@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // Include database connection
 require_once __DIR__ . '/db.php';
 
-$timeout = 120; // 2 minutes
+$timeout = 300;
 
 if (isset($_SESSION['LAST_ACTIVITY'])) {
     if (time() - $_SESSION['LAST_ACTIVITY'] > $timeout) {

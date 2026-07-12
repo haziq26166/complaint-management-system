@@ -4,17 +4,17 @@ document.addEventListener("DOMContentLoaded", function() {
     // ======================
     const fullName = document.getElementById("full_name");
     const nameError = document.getElementById("nameError");
-    
+
     if (fullName) {
         fullName.addEventListener("keyup", function() {
             const value = this.value;
-            const isValid = /^[A-Za-z\s\-']+$/.test(value);
+            const isValid = /^[A-Za-z\s\-'.@]+$/.test(value);
             
             if (value.length === 0) {
                 nameError.innerHTML = "";
                 nameError.style.color = "#718096";
             } else if (!isValid) {
-                nameError.innerHTML = "❌ Name can only contain letters, spaces, hyphens, and apostrophes";
+                nameError.innerHTML = "❌ Name can only contain letters, spaces, hyphens, apostrophes, dots, and @";
                 nameError.style.color = "red";
             } else {
                 nameError.innerHTML = "✓ Valid name format";
@@ -24,8 +24,8 @@ document.addEventListener("DOMContentLoaded", function() {
         
         fullName.addEventListener("blur", function() {
             const value = this.value.trim();
-            if (value.length > 0 && !/^[A-Za-z\s\-']+$/.test(value)) {
-                nameError.innerHTML = "❌ Name can only contain letters, spaces, hyphens, and apostrophes";
+            if (value.length > 0 && !/^[A-Za-z\s\-'.@]+$/.test(value)) {
+                nameError.innerHTML = "❌ Name can only contain letters, spaces, hyphens, apostrophes, dots, and @";
                 nameError.style.color = "red";
             }
         });
@@ -40,13 +40,13 @@ document.addEventListener("DOMContentLoaded", function() {
     if (profileFullName) {
         profileFullName.addEventListener("keyup", function() {
             const value = this.value;
-            const isValid = /^[A-Za-z\s\-']+$/.test(value);
+            const isValid = /^[A-Za-z\s\-'.@]+$/.test(value);
             
             if (value.length === 0) {
                 profileNameError.innerHTML = "Enter your full name";
                 profileNameError.style.color = "#718096";
             } else if (!isValid) {
-                profileNameError.innerHTML = "❌ Name can only contain letters, spaces, hyphens, and apostrophes";
+                profileNameError.innerHTML = "❌ Name can only contain letters, spaces, hyphens, apostrophes, dots, and @";
                 profileNameError.style.color = "red";
             } else {
                 profileNameError.innerHTML = "✓ Valid name format";
@@ -56,8 +56,8 @@ document.addEventListener("DOMContentLoaded", function() {
         
         profileFullName.addEventListener("blur", function() {
             const value = this.value.trim();
-            if (value.length > 0 && !/^[A-Za-z\s\-']+$/.test(value)) {
-                profileNameError.innerHTML = "❌ Name can only contain letters, spaces, hyphens, and apostrophes";
+            if (value.length > 0 && !/^[A-Za-z\s\-'.@]+$/.test(value)) {
+                profileNameError.innerHTML = "❌ Name can only contain letters, spaces, hyphens, apostrophes, dots, and @";
                 profileNameError.style.color = "red";
             }
         });
@@ -72,13 +72,13 @@ document.addEventListener("DOMContentLoaded", function() {
     if (adminFullName) {
         adminFullName.addEventListener("keyup", function() {
             const value = this.value;
-            const isValid = /^[A-Za-z\s\-']+$/.test(value);
+            const isValid = /^[A-Za-z\s\-'.@]+$/.test(value);
             
             if (value.length === 0) {
                 adminNameError.innerHTML = "Enter resident's full name";
                 adminNameError.style.color = "#718096";
             } else if (!isValid) {
-                adminNameError.innerHTML = "❌ Name can only contain letters, spaces, hyphens, and apostrophes";
+                adminNameError.innerHTML = "❌ Name can only contain letters, spaces, hyphens, apostrophes, dots, and @";
                 adminNameError.style.color = "red";
             } else {
                 adminNameError.innerHTML = "✓ Valid name format";
@@ -88,8 +88,8 @@ document.addEventListener("DOMContentLoaded", function() {
         
         adminFullName.addEventListener("blur", function() {
             const value = this.value.trim();
-            if (value.length > 0 && !/^[A-Za-z\s\-']+$/.test(value)) {
-                adminNameError.innerHTML = "❌ Name can only contain letters, spaces, hyphens, and apostrophes";
+            if (value.length > 0 && !/^[A-Za-z\s\-'.@]+$/.test(value)) {
+                adminNameError.innerHTML = "❌ Name can only contain letters, spaces, hyphens, apostrophes, dots, and @";
                 adminNameError.style.color = "red";
             }
         });
@@ -115,38 +115,6 @@ document.addEventListener("DOMContentLoaded", function() {
             } else {
                 emailError.innerHTML = "✓ Valid email address";
                 emailError.style.color = "green";
-            }
-        });
-    }
-
-    // ======================
-    // LOGIN EMAIL VALIDATION
-    // ======================
-    const loginEmail = document.getElementById("loginEmail");
-    const loginEmailError = document.getElementById("loginEmailError");
-    
-    if (loginEmail) {
-        loginEmail.addEventListener("keyup", function() {
-            const value = this.value.trim();
-            const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-            
-            if (value.length === 0) {
-                loginEmailError.innerHTML = "Enter your registered email address";
-                loginEmailError.style.color = "#718096";
-            } else if (!isValid) {
-                loginEmailError.innerHTML = "❌ Please enter a valid email address (e.g., name@domain.com)";
-                loginEmailError.style.color = "red";
-            } else {
-                loginEmailError.innerHTML = "✓ Valid email format";
-                loginEmailError.style.color = "green";
-            }
-        });
-        
-        loginEmail.addEventListener("blur", function() {
-            const value = this.value.trim();
-            if (value.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                loginEmailError.innerHTML = "❌ Please enter a valid email address (e.g., name@domain.com)";
-                loginEmailError.style.color = "red";
             }
         });
     }
@@ -376,9 +344,8 @@ function updateCheck(id, valid) {
 
 function validateRegister() {
     // Full Name Validation
-    let fullName = document.getElementById("full_name").value.trim();
-    if (!/^[A-Za-z\s\-']+$/.test(fullName)) {
-        alert("Name can only contain letters, spaces, hyphens, and apostrophes");
+    if (!/^[\p{L}\p{M}\s\-'.@]+$/u.test(fullName)) {
+        alert("Please enter a valid name");
         document.getElementById("full_name").focus();
         return false;
     }
@@ -455,13 +422,6 @@ function validateRegister() {
 // ======================
 
 function validateLogin() {
-    let email = document.getElementById("loginEmail").value.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        alert("Please enter a valid email address (e.g., name@domain.com)");
-        document.getElementById("loginEmail").focus();
-        return false;
-    }
-    
     let password = document.getElementById("loginPassword").value;
     if (password.length === 0) {
         alert("Please enter your password");
@@ -479,8 +439,8 @@ function validateLogin() {
 function validateProfileEdit() {
     // Full Name Validation
     let fullName = document.getElementById("profile_full_name").value.trim();
-    if (!/^[A-Za-z\s\-']+$/.test(fullName)) {
-        alert("Name can only contain letters, spaces, hyphens, and apostrophes");
+    if (!/^[A-Za-z\s\-'.@]+$/.test(fullName)) {
+        alert("PLease enter a valid name");
         document.getElementById("profile_full_name").focus();
         return false;
     }
@@ -508,8 +468,8 @@ function validateProfileEdit() {
 function validateAdminResidentEdit() {
     // Full Name Validation
     let fullName = document.getElementById("admin_full_name").value.trim();
-    if (!/^[A-Za-z\s\-']+$/.test(fullName)) {
-        alert("Name can only contain letters, spaces, hyphens, and apostrophes");
+    if (!/^[A-Za-z\s\-'.@]+$/.test(fullName)) {
+        alert("Please enter a valid name");
         document.getElementById("admin_full_name").focus();
         return false;
     }

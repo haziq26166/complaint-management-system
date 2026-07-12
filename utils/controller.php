@@ -14,8 +14,8 @@ if (isset($_POST['register'])) {
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     
     // Validate full name
-    if (!preg_match("/^[A-Za-z\s\-']+$/", $full_name)) {
-        echo "<script>alert('Name can only contain letters, spaces, hyphens, and apostrophes'); window.location='../auth/register.html';</script>";
+    if (!preg_match("/^[A-Za-z\s\-'.@]+$/", $full_name)) {
+        echo "<script>alert('Name can only contain letters, spaces, hyphens, apostrophes, dots, and @'); window.location='../auth/register.html';</script>";
         exit();
     }
     
@@ -299,8 +299,8 @@ if (isset($_POST['update_resident'])) {
     $resident_status = mysqli_real_escape_string($conn, $_POST['resident_status']);
     
     // Validate full name (only letters, spaces, hyphens, apostrophes)
-    if (!preg_match("/^[A-Za-z\s\-']+$/", $full_name)) {
-        echo "<script>alert('Full name can only contain letters, spaces, hyphens, and apostrophes.'); window.location='../component/admin/resident-edit.php?id=$resident_id';</script>";
+    if (!preg_match("/^[A-Za-z\s\-'.@]+$/", $full_name)) {
+        echo "<script>alert('Full name can only contain letters, spaces, hyphens, apostrophes, dots, and @.'); window.location='../component/admin/resident-edit.php?id=$resident_id';</script>";
         exit();
     }
     
